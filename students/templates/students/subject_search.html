@@ -1,0 +1,56 @@
+{% extends "students/layout.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Find Subject PYQs</h1>
+    
+    <!-- Search Form -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" action="{% url 'subject_search' %}">
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control form-control-lg" 
+                           name="q" 
+                           value="{{ search_query }}"
+                           placeholder="Search subjects...">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="row">
+        {% if subjects %}
+            {% for subject in subjects %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h3>{{ subject.name }}</h3>
+                        <p class="text-muted">{{ subject.description|truncatechars:150 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-secondary">
+                                {{ subject.major.name }} - Sem {{ subject.semester }}
+                            </span>
+                            <a href="{% url 'subject_pyqs' subject.id %}" 
+                               class="btn btn-sm btn-outline-primary">
+                                View PYQs <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No subjects found matching your search.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

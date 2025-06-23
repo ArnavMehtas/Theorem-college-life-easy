@@ -1,0 +1,389 @@
+{% extends "students/layout.html" %}
+
+{% block title %}{{ subject.name }}{% endblock %}
+
+{% block content %}
+
+<div class="nav-icons" style="margin-top: 70px; padding: 0 20px; position: fixed; width: 100%; z-index: 1000;">
+  <a href="javascript:history.back()" class="back-button" title="Go Back">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+  <a href="{% url 'home' %}" class="home-button" title="Go to Home">
+    <i class="fas fa-home"></i>
+  </a>
+</div>
+
+<div class="subject-container">
+<h1 class="text-center my-4" style="color: white; font-weight: 700;">
+    {{ subject.name }}
+</h1>  
+<!-- Stylish Chapter Navigation -->
+<div class="chapter-nav mb-5">
+  <div class="chapter-buttons d-flex flex-wrap gap-2">
+    {% for chapter in chapters %}
+      <button 
+        onclick="showChapter({{ chapter.chapter_number }})" 
+        class="chapter-btn {% if forloop.first %}active{% endif %}"
+        aria-label="Chapter {{ chapter.chapter_number }}"
+      >
+        <!-- <span class="chapter-number">{{ chapter.chapter_number }}</span> -->
+        <span class="chapter-text">Chapter {{ chapter.chapter_number }}</span>
+      </button>
+    {% endfor %}
+  </div>
+</div>
+
+
+  <!-- Chapter Content -->
+  {% for chapter in chapters %}
+    <div class="chapter-content" 
+         id="chapter-{{ chapter.chapter_number }}" 
+         style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+      <div class="chapter-box">
+        <h2>Chapter {{ chapter.chapter_number }}: {{ chapter.name }}</h2>
+        
+        <!-- Book PDF Section -->
+        {% if chapter.book_pdf %}
+        <div class="resource-section">
+          <h3>Reference Book</h3>
+          <div class="book-pdf">
+            <a href="{{ chapter.book_pdf.url }}" target="_blank" class="resource-card">
+              <i class="fas fa-book-open"></i>
+              <span>View Textbook PDF</span>
+            </a>
+          </div>
+        </div>
+        {% endif %}
+        
+        <!-- PDF Notes Section -->
+        {% if chapter.pdf_notes.all %}
+        <div class="resource-section">
+          <h3>Lecture Notes</h3>
+          <div class="pdf-grid">
+            {% for pdf in chapter.pdf_notes.all %}
+              <div class="resource-card">
+                <a href="{{ pdf.pdf_file.url }}" target="_blank">
+                  <i class="fas fa-file-pdf"></i>
+                  <span>{{ pdf.title }}</span>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% else %}
+          <p class="no-resource">No PDF notes available for this chapter.</p>
+        {% endif %}
+        
+        <!-- YouTube Videos Section -->
+        {% if chapter.youtube_links.all %}
+        <div class="resource-section">
+          <h3>Video Lectures</h3>
+          <div class="video-grid">
+            {% for video in chapter.youtube_links.all %}
+              <div class="video-card">
+                <a href="#" onclick="showVideoModal('{{ video.url }}', '{{ video.title }}')">
+                  <img src="{{ video.thumbnail }}" alt="{{ video.title }}">
+                  <div class="video-title">{{ video.title }}</div>
+                  <div class="play-button"><i class="fas fa-play"></i></div>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% else %}
+          <p class="no-resource">No video lectures available for this chapter.</p>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Video Modal -->
+<div id="videoModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeVideoModal()">&times;</span>
+    <h3 id="videoModalTitle"></h3>
+    <div class="video-container">
+      <iframe id="videoFrame" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Chapter Navigation
+  function showChapter(chapterNumber) {
+    // Hide all chapter contents
+    document.querySelectorAll('.chapter-content').forEach(div => {
+      div.style.display = 'none';
+    });
+    
+    // Show selected chapter
+    const chapterDiv = document.getElementById(`chapter-${chapterNumber}`);
+    if (chapterDiv) chapterDiv.style.display = 'block';
+    
+    // Update button states
+    document.querySelectorAll('.chapter-buttons button').forEach(button => {
+      button.classList.remove('active');
+    });
+    event.target.classList.add('active');
+  }
+
+  // Video Modal Handling
+  function showVideoModal(videoUrl, title) {
+    const modal = document.getElementById('videoModal');
+    const videoFrame = document.getElementById('videoFrame');
+    const videoTitle = document.getElementById('videoModalTitle');
+    
+    // Convert to embed URL
+    let embedUrl = videoUrl
+      .replace('/watch?v=', '/embed/')
+      .replace('youtu.be/', 'youtube.com/embed/');
+    
+    videoFrame.src = embedUrl.split('&')[0]; // Remove extra parameters
+    videoTitle.textContent = title;
+    modal.style.display = 'block';
+  }
+
+  function closeVideoModal() {
+    const modal = document.getElementById('videoModal');
+    const videoFrame = document.getElementById('videoFrame');
+    videoFrame.src = '';
+    modal.style.display = 'none';
+  }
+
+  // Close modal on outside click
+  window.onclick = function(event) {
+    const modal = document.getElementById('videoModal');
+    if (event.target === modal) {
+      closeVideoModal();
+    }
+  }
+</script>
+
+<style>
+  /* Your original CSS remains intact */
+  .nav-icons {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+  }
+
+  .back-button, .home-button {
+    color: #ffffff;
+    font-size: 24px;
+    background-color: #2c2c3e;
+    padding: 10px;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+  }
+
+.chapter-buttons {
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+  }
+  
+  .chapter-btn {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    color: var(--primary-blue);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .chapter-btn:hover {
+    background: var(--accent-purple);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+  }
+  
+  .chapter-btn.active {
+    background: var(--accent-purple);
+    color: white;
+    box-shadow: 0 4px 8px rgba(108, 99, 255, 0.4);
+  }
+  
+  .chapter-number {
+    font-weight: 700;
+    font-size: 1.1em;
+  }
+  
+  .chapter-text {
+    font-size: 0.95em;
+  }
+  
+  /* For mobile responsiveness */
+  @media (max-width: 768px) {
+    .chapter-btn {
+      padding: 10px 15px;
+    }
+    .chapter-text {
+      display: none;
+    }
+  }
+
+  /* Add these new styles to your existing CSS */
+  .resource-section {
+    margin: 30px 0;
+  }
+
+  .resource-section h3 {
+    color: #89b4fa;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #3e3e50;
+    padding-bottom: 8px;
+  }
+
+  .resource-card {
+    background-color: #3c3c4f;
+    border-radius: 8px;
+    padding: 15px;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #89b4fa;
+    text-decoration: none;
+  }
+
+  .resource-card:hover {
+    background-color: #4c4c5f;
+    transform: translateY(-3px);
+  }
+
+  .resource-card i {
+    font-size: 1.5em;
+  }
+
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .video-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+
+  .video-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .video-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+  }
+
+  .video-title {
+    padding: 10px;
+    background-color: #3c3c4f;
+    color: white;
+  }
+
+  .play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 0, 0, 0.7);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .play-button i {
+    color: white;
+    font-size: 20px;
+  }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+  }
+
+  .modal-content {
+    background-color: #2a2a3b;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    color: white;
+  }
+
+  .video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+  }
+
+  .video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .no-resource {
+    color: #888;
+    text-align: center;
+    padding: 20px;
+    background-color: #2a2a3b;
+    border-radius: 8px;
+  }
+
+  /* Keep all your existing styles */
+  /* ... */
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+{% endblock %}
+

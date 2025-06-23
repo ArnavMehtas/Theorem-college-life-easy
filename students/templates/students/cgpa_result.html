@@ -1,0 +1,28 @@
+{% extends "students/layout.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-body text-center">
+            <h2 class="card-title mb-4">CGPA Result</h2>
+            
+            <div class="alert alert-success" style="max-width: 500px; margin: 0 auto;">
+                <h3 class="display-4">Your CGPA: {{ cgpa }}</h3>
+            </div>
+            
+            <div class="mt-4">
+                <h4>Semester-wise SGPAs:</h4>
+                <ul class="list-group" style="max-width: 300px; margin: 0 auto;">
+                    {% for sgpa in sgpais %}
+                    <li class="list-group-item">Semester {{ forloop.counter }}: {{ sgpa }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <a href="{% url 'cgpa_calculator' %}" class="btn btn-primary mt-4">
+                <i class="fas fa-calculator"></i> Calculate Again
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

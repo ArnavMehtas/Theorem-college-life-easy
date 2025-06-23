@@ -1,0 +1,1 @@
+web: gunicorn theorem.wsgi --log-file -

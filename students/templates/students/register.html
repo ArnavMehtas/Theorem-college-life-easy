@@ -1,0 +1,54 @@
+{% extends "students/layout.html" %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="nav-icons">
+    <a href="{% url 'home' %}" class="home-button">
+      <i class="fas fa-home"></i>
+    </a>
+  </div>
+
+  <div class="auth-box">
+    <h2>Student Registration</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        {{ form.username }}
+      </div>
+      <div class="form-group">
+        {{ form.email }}
+      </div>
+      <div class="form-group">
+        {{ form.password1 }}
+      </div>
+      <div class="form-group">
+        {{ form.password2 }}
+      </div>
+      <div class="form-group">
+        {{ form.year }}
+      </div>
+      <div class="form-group">
+        {{ form.semester }}
+      </div>
+      <div class="form-group">
+        {{ form.major }}
+      </div>
+      <button type="submit" class="auth-btn">Register</button>
+    </form>
+    <p class="auth-link">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+  </div>
+</div>
+
+<style>
+  /* Same styles as login.html */
+  select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #3e3e50;
+    background: #1e1e2f;
+    color: white;
+    font-size: 16px;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "students/layout.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title mb-4">CGPA Calculator</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div id="sgpa-fields">
+                    <div class="mb-3">
+                        <label class="form-label">Semester 1 SGPA</label>
+                        <input type="number" step="0.01" min="0" max="10" 
+                               class="form-control" name="sgpa" required>
+                    </div>
+                </div>
+                
+                <button type="button" id="add-semester" class="btn btn-outline-primary mb-3">
+                    <i class="fas fa-plus"></i> Add Another Semester
+                </button>
+                <br>
+                <button type="submit" class="btn btn-primary">Calculate CGPA</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('add-semester').addEventListener('click', function() {
+    const container = document.getElementById('sgpa-fields');
+    const count = container.children.length + 1;
+    
+    const newField = document.createElement('div');
+    newField.className = 'mb-3';
+    newField.innerHTML = `
+        <label class="form-label">Semester ${count} SGPA</label>
+        <input type="number" step="0.01" min="0" max="10" 
+               class="form-control" name="sgpa">
+    `;
+    
+    container.appendChild(newField);
+});
+</script>
+{% endblock %}
