@@ -1,3 +1,4 @@
 Django==5.2
 django-resized==1.0.3
 psycopg2==2.9.7
+gunicorn==23.0.0
